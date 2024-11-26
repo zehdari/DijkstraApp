@@ -671,7 +671,7 @@ class GraphWidget(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Graph Creator")
+        self.setWindowTitle("DjikstraApp")
         self.setGeometry(100, 100, 800, 600)
         self.graph_widget = GraphWidget()
         self.setCentralWidget(self.graph_widget)
