@@ -43,24 +43,24 @@ class NodeSelectionDialog(QDialog):
 class GraphWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.nodes = []  # List of node positions
-        self.edges = []  # List of edges as tuples (start_index, end_index, weight)
-        self.node_labels = []  # List of node labels starting from 'A'
-        self.selected_node = None  # Node currently selected for edge drawing
-        self.dragging_node = None  # Node currently being moved
-        self.current_mouse_pos = None  # Current mouse position for edge drawing
-        self.offset = QPointF(0, 0)  # Offset for moving nodes
+        self.nodes = []  
+        self.edges = [] 
+        self.node_labels = []  
+        self.selected_node = None  
+        self.dragging_node = None 
+        self.current_mouse_pos = None  
+        self.offset = QPointF(0, 0)  
         self.setMouseTracking(True)
-        self.is_dragging = False  # Flag to distinguish between click and drag
-        self.mouse_press_pos = None  # Position where mouse was pressed
-        self.drag_threshold = 5  # Minimum distance to start dragging
-        self.edge_weight_positions = []  # For storing positions of edge weights
+        self.is_dragging = False  
+        self.mouse_press_pos = None  
+        self.drag_threshold = 5  
+        self.edge_weight_positions = []  
 
         # Dijkstra's algorithm variables
         self.dijkstra_running = False
         self.dijkstra_timer = QTimer()
         self.dijkstra_timer.timeout.connect(self.dijkstra_step)
-        self.dijkstra_data = None  # Stores the algorithm's data
+        self.dijkstra_data = None  
         self.visited_nodes = set()
         self.current_node = None
         self.shortest_path = []
@@ -95,7 +95,7 @@ class GraphWidget(QWidget):
             self.dijkstra_running = False
             self.extract_shortest_path()
             self.update()
-            QMessageBox.information(self, "Dijkstra's Algorithm", "Algorithm completed.")
+            QMessageBox.information(self, "Dijkstra's Algorithm", "No path found.")
             return
 
         distances = self.dijkstra_data['distances']
@@ -156,9 +156,24 @@ class GraphWidget(QWidget):
     def update_node_distances(self, distances):
         self.node_distances = {i: distances[i] for i in range(len(distances)) if distances[i] != math.inf}
 
+    def reset_dijkstra_visualization(self):
+        # Reset all Dijkstra's algorithm related variables and visualizations
+        self.dijkstra_running = False
+        self.dijkstra_timer.stop()
+        self.dijkstra_data = None
+        self.visited_nodes = set()
+        self.current_node = None
+        self.shortest_path = []
+        self.highlighted_edges = set()
+        self.node_distances = {}
+        self.update()
+
     def mousePressEvent(self, event):
         if self.dijkstra_running:
             return  # Ignore input during algorithm execution
+
+        # Reset Dijkstra's algorithm visualization on any user interaction
+        self.reset_dijkstra_visualization()
 
         pos = event.position()
         node_index = self.get_node_at_position(pos)
@@ -175,7 +190,7 @@ class GraphWidget(QWidget):
                             # Update the weight
                             self.edges[edge_i] = (s_idx, e_idx, new_weight)
                             self.update()
-                        return  # Since we've processed this click, exit the method
+                        return  
 
         # Then, check if click is near any arrowhead to reverse edge direction
         for i, (start_index, end_index, weight) in enumerate(self.edges):
@@ -190,14 +205,14 @@ class GraphWidget(QWidget):
                     # Flip the direction of the edge
                     self.edges[i] = (end_index, start_index, weight)
                     self.update()
-                return  # Since we've processed this click, exit the method
+                return  
 
         if event.button() == Qt.MouseButton.LeftButton:
             if node_index is not None:
                 self.mouse_press_pos = pos
                 self.dragging_node = node_index
                 self.offset = self.nodes[node_index] - pos
-                self.is_dragging = False  # Reset dragging flag
+                self.is_dragging = False 
             else:
                 if self.selected_node is not None:
                     # Clicked on background; deselect the node
@@ -215,16 +230,26 @@ class GraphWidget(QWidget):
                 self.remove_node(node_index)
                 self.update_node_labels()
                 self.update()
+            else:
+                # Check if click is on an edge to remove it
+                edge_index = self.get_edge_at_position(pos)
+                if edge_index is not None:
+                    self.remove_edge(edge_index)
+                    self.update()
 
     def mouseMoveEvent(self, event):
         if self.dijkstra_running:
             return  # Ignore input during algorithm execution
 
+        if self.dragging_node is not None or self.selected_node is not None:
+            # Reset Dijkstra's algorithm visualization on any user interaction
+            self.reset_dijkstra_visualization()
+
         pos = event.position()
         if self.dragging_node is not None:
             # Check if the mouse has moved beyond the drag threshold
             if not self.is_dragging and (pos - self.mouse_press_pos).manhattanLength() > self.drag_threshold:
-                self.is_dragging = True  # Start dragging
+                self.is_dragging = True  
             if self.is_dragging:
                 self.nodes[self.dragging_node] = pos + self.offset
                 self.update()
@@ -299,6 +324,9 @@ class GraphWidget(QWidget):
             for start, end, weight in self.edges
         ]
         self.update_node_labels()
+
+    def remove_edge(self, index):
+        del self.edges[index]
 
     def update_node_labels(self):
         self.node_labels = [chr(ord('A') + i) for i in range(len(self.nodes))]
@@ -407,8 +435,11 @@ class GraphWidget(QWidget):
         text_width = font_metrics.horizontalAdvance(text)
         text_height = font_metrics.height()
         text_rect = QRectF(mid_point.x() - text_width / 2, mid_point.y() - text_height / 2, text_width, text_height)
+        # Expand the clickable area
+        padding = 5 
+        expanded_rect = text_rect.adjusted(-padding, -padding, padding, padding)
         # Store the position
-        self.edge_weight_positions.append((start_index, end_index, text_rect))
+        self.edge_weight_positions.append((start_index, end_index, expanded_rect))
         painter.setPen(QPen(QColor("#2C3E50"), 2))
 
     def draw_curved_edge(self, painter, start_index, end_index, weight):
@@ -458,8 +489,11 @@ class GraphWidget(QWidget):
         text_width = font_metrics.horizontalAdvance(text)
         text_height = font_metrics.height()
         text_rect = QRectF(control_point.x() - text_width / 2, control_point.y() - text_height / 2, text_width, text_height)
+        # Expand the clickable area
+        padding = 5 
+        expanded_rect = text_rect.adjusted(-padding, -padding, padding, padding)
         # Store the position
-        self.edge_weight_positions.append((start_index, end_index, text_rect))
+        self.edge_weight_positions.append((start_index, end_index, expanded_rect))
         painter.setPen(QPen(QColor("#2C3E50"), 2))
 
     def is_edge_in_shortest_path(self, start_index, end_index):
@@ -468,6 +502,11 @@ class GraphWidget(QWidget):
             if self.shortest_path[i] == start_index and self.shortest_path[i + 1] == end_index:
                 return True
         return False
+
+    def quadratic_bezier_point(self, p0, p1, p2, t):
+        x = (1 - t)**2 * p0.x() + 2 * (1 - t) * t * p1.x() + t**2 * p2.x()
+        y = (1 - t)**2 * p0.y() + 2 * (1 - t) * t * p1.y() + t**2 * p2.y()
+        return QPointF(x, y)
 
     def quadratic_bezier_tangent(self, p0, p1, p2, t):
         # Derivative of quadratic Bezier curve
@@ -492,7 +531,7 @@ class GraphWidget(QWidget):
         painter.setBrush(QBrush(QColor("#2C3E50")))
         painter.setPen(Qt.PenStyle.NoPen)  # No border for the arrowhead
         painter.drawPolygon(arrow_head)
-        painter.setPen(QPen(QColor("#2C3E50"), 2))  # Reset pen for future drawing
+        painter.setPen(QPen(QColor("#2C3E50"), 2)) 
 
     def is_click_near_arrowhead(self, click_pos, start_pos, end_pos):
         arrow_size = 10
@@ -512,22 +551,79 @@ class GraphWidget(QWidget):
         unit_dx = dx / line_length
         unit_dy = dy / line_length
 
-        if for_curve:
-            # For curves, adjust a bit less to make the curve look better
-            adjust_start = 15
-            adjust_end = 15
-        else:
-            adjust_start = 15
-            adjust_end = 15
+        adjust_start = 15
+        adjust_end = 15
 
-        start_x = start_pos.x() + unit_dx * adjust_start  # node radius
+        start_x = start_pos.x() + unit_dx * adjust_start 
         start_y = start_pos.y() + unit_dy * adjust_start
-        end_x = end_pos.x() - unit_dx * adjust_end  # node radius
+        end_x = end_pos.x() - unit_dx * adjust_end  
         end_y = end_pos.y() - unit_dy * adjust_end
 
         adjusted_start = QPointF(start_x, start_y)
         adjusted_end = QPointF(end_x, end_y)
         return adjusted_start, adjusted_end
+
+    def get_edge_at_position(self, pos):
+        # Iterate over edges
+        for i, (start_index, end_index, weight) in enumerate(self.edges):
+            start_pos = self.nodes[start_index]
+            end_pos = self.nodes[end_index]
+            reverse_exists = self.edge_exists(end_index, start_index)
+            if reverse_exists and start_index != end_index:
+                # For curved edges
+                if self.is_click_near_curved_edge(pos, start_pos, end_pos):
+                    return i
+            else:
+                # For straight edges
+                if self.is_click_near_straight_edge(pos, start_pos, end_pos):
+                    return i
+        return None
+
+    def is_click_near_straight_edge(self, click_pos, start_pos, end_pos):
+        threshold = 5.0
+        # Adjust positions to be at the edge of the nodes
+        adjusted_start, adjusted_end = self.get_line_points(start_pos, end_pos)
+        # Compute distance from click_pos to the line segment adjusted_start - adjusted_end
+        line_vec = adjusted_end - adjusted_start
+        line_len = math.hypot(line_vec.x(), line_vec.y())
+        if line_len == 0:
+            return False
+        line_unitvec = line_vec / line_len
+        point_vec = click_pos - adjusted_start
+        proj_length = point_vec.x() * line_unitvec.x() + point_vec.y() * line_unitvec.y()
+        if proj_length < 0 or proj_length > line_len:
+            return False  # Click is outside the line segment
+        proj_point = adjusted_start + line_unitvec * proj_length
+        distance = (click_pos - proj_point).manhattanLength()
+        if distance <= threshold:
+            return True
+        else:
+            return False
+
+    def is_click_near_curved_edge(self, click_pos, start_pos, end_pos):
+        threshold = 5.0 
+        # Compute control point for curve
+        dx = end_pos.x() - start_pos.x()
+        dy = end_pos.y() - start_pos.y()
+        center = (start_pos + end_pos) / 2
+        # Perpendicular vector
+        perp = QPointF(-dy, dx)
+        perp = perp / math.hypot(perp.x(), perp.y())
+        offset = perp * 30  # Use same offset as in draw_curved_edge
+        control_point = center + offset
+
+        # Adjust positions to be at the edge of the nodes
+        adjusted_start, adjusted_end = self.get_line_points(start_pos, end_pos, for_curve=True)
+
+        # Sample points along the curve
+        num_samples = 20
+        for i in range(num_samples + 1):
+            t = i / num_samples
+            point = self.quadratic_bezier_point(adjusted_start, control_point, adjusted_end, t)
+            distance = (click_pos - point).manhattanLength()
+            if distance <= threshold:
+                return True
+        return False
 
     def save_graph(self, filename):
         # Prepare data for serialization
@@ -547,6 +643,13 @@ class GraphWidget(QWidget):
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
+            self.load_graph_data(data)
+            QMessageBox.information(self, "Load Graph", f"Graph loaded successfully from {filename}.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load graph: {e}")
+
+    def load_graph_data(self, data):
+        try:
             # Load nodes
             self.nodes = [QPointF(node['x'], node['y']) for node in data['nodes']]
             # Load edges
@@ -560,18 +663,10 @@ class GraphWidget(QWidget):
             self.is_dragging = False
             self.mouse_press_pos = None
             self.edge_weight_positions = []
-            self.dijkstra_running = False
-            self.dijkstra_timer.stop()
-            self.dijkstra_data = None
-            self.visited_nodes = set()
-            self.current_node = None
-            self.shortest_path = []
-            self.highlighted_edges = set()
-            self.node_distances = {}
+            self.reset_dijkstra_visualization()
             self.update()
-            QMessageBox.information(self, "Load Graph", f"Graph loaded successfully from {filename}.")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to load graph: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to load graph data: {e}")
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -583,6 +678,7 @@ class MainWindow(QMainWindow):
         self.apply_styles()
         self.create_actions()
         self.create_toolbar()
+        self.load_default_graph()
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -640,6 +736,33 @@ class MainWindow(QMainWindow):
             self, "Load Graph", "", "Graph Files (*.json);;All Files (*)", options=options)
         if filename:
             self.graph_widget.load_graph(filename)
+
+    def load_default_graph(self):
+        default_graph_data = {
+            "nodes": [
+                {"x": 100.0, "y": 100.0},
+                {"x": 200.0, "y": 50.0},
+                {"x": 300.0, "y": 100.0},
+                {"x": 100.0, "y": 200.0},
+                {"x": 200.0, "y": 250.0},
+                {"x": 300.0, "y": 200.0},
+                {"x": 200.0, "y": 150.0}
+            ],
+            "edges": [
+                {"start": 0, "end": 1, "weight": 2},
+                {"start": 0, "end": 3, "weight": 1},
+                {"start": 1, "end": 2, "weight": 3},
+                {"start": 2, "end": 5, "weight": 2},
+                {"start": 5, "end": 4, "weight": 1},
+                {"start": 3, "end": 4, "weight": 4},
+                {"start": 4, "end": 6, "weight": 2},
+                {"start": 6, "end": 1, "weight": 1},
+                {"start": 6, "end": 2, "weight": 2},
+                {"start": 6, "end": 5, "weight": 3}
+            ],
+            "node_labels": ["A", "B", "C", "D", "E", "F", "G"]
+        }
+        self.graph_widget.load_graph_data(default_graph_data)
 
 def main():
     app = QApplication(sys.argv)
