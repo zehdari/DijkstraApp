@@ -141,5 +141,4 @@ If you prefer to run the app from the source code, follow these steps:
 ## File Structure
 
 - **`DjikstraApp.py`**: Main file containing the DjikstraApp UI and logic for graph creation and algorithm visualization.
-- **`resources/`**: Folder containing icons and other static resources for the application.
 - **`requirements.txt`**: Python dependencies required to run DjikstraApp from the source.
