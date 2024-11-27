@@ -1,7 +1,7 @@
 
-# DjikstraApp - Graph Creator and Dijkstra's Algorithm Visualizer
+# DijkstraApp - Graph Creator and Dijkstra's Algorithm Visualizer
 
-**DjikstraApp** is an interactive PyQt-based application for creating graphs and visualizing Dijkstra's algorithm. It allows users to build custom graphs, edit nodes and edges, and step through Dijkstra's algorithm to find the shortest path between nodes in real-time.
+**DijkstraApp** is an interactive PyQt-based application for creating graphs and visualizing Dijkstra's algorithm. It allows users to build custom graphs, edit nodes and edges, and step through Dijkstra's algorithm to find the shortest path between nodes in real-time.
 
 ## Features
 
@@ -23,7 +23,7 @@
 
 ### Precompiled Executables
 
-You can download precompiled executables for **macOS**, **Ubuntu**, **Windows**, and **RedHat** from the [Releases](https://github.com/zehdari/DjikstraApp/releases) page.
+You can download precompiled executables for **macOS**, **Ubuntu**, **Windows**, and **RedHat** from the [Releases](https://github.com/zehdari/DijkstraApp/releases) page.
 
 1. **Download** the appropriate zip file for your operating system:
    - macOS
@@ -35,8 +35,8 @@ You can download precompiled executables for **macOS**, **Ubuntu**, **Windows**,
    - On macOS and Linux:
 
      ```bash
-     unzip DjikstraApp-<os>.zip
-     cd DjikstraApp
+     unzip DijkstraApp-<os>.zip
+     cd DijkstraApp
      ```
 
    - On Windows:
@@ -47,17 +47,17 @@ You can download precompiled executables for **macOS**, **Ubuntu**, **Windows**,
    - On macOS and Ubuntu:
 
      ```bash
-     ./DjikstraApp
+     ./DijkstraApp
      ```
 
    - On Windows:
-     - Double-click `DjikstraApp.exe`.
+     - Double-click `DijkstraApp.exe`.
    - On RedHat:
      After unzipping, you need to make the file executable:
 
      ```bash
-     chmod +x DjikstraApp
-     ./DjikstraApp
+     chmod +x DijkstraApp
+     ./DijkstraApp
      ```
 
 ### From Source
@@ -67,8 +67,8 @@ If you prefer to run the app from the source code, follow these steps:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/zehdari/DjikstraApp
-   cd DjikstraApp
+   git clone https://github.com/zehdari/DijkstraApp
+   cd DijkstraApp
    ```
 
 2. **Set up a virtual environment**:
@@ -89,7 +89,7 @@ If you prefer to run the app from the source code, follow these steps:
 4. **Run the application**:
 
    ```bash
-   python DjikstraApp.py
+   python DijkstraApp.py
    ```
 
 ## Usage
@@ -140,5 +140,5 @@ If you prefer to run the app from the source code, follow these steps:
 
 ## File Structure
 
-- **`DjikstraApp.py`**: Main file containing the DjikstraApp UI and logic for graph creation and algorithm visualization.
-- **`requirements.txt`**: Python dependencies required to run DjikstraApp from the source.
+- **`DijkstraApp.py`**: Main file containing the DijkstraApp UI and logic for graph creation and algorithm visualization.
+- **`requirements.txt`**: Python dependencies required to run DijkstraApp from the source.
