@@ -1,6 +1,8 @@
 
 # DijkstraApp - Graph Creator and Dijkstra's Algorithm Visualizer
 
+![DijktraApp Screenshot](assets/DijkstraApp.png)
+
 **DijkstraApp** is an interactive PyQt-based application for creating graphs and visualizing Dijkstra's algorithm. It allows users to build custom graphs, edit nodes and edges, and step through Dijkstra's algorithm to find the shortest path between nodes in real-time.
 
 ## Features
