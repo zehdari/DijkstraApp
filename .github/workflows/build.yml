@@ -72,9 +72,9 @@ jobs:
             # Install PyInstaller \
             python3.8 -m pip install pyinstaller && \
             # Build the executable with PyInstaller \
-            python3.8 -m PyInstaller --onefile --windowed --name=DjikstraApp DjikstraApp.py && \
+            python3.8 -m PyInstaller --onefile --windowed --name=DijkstraApp DijkstraApp.py && \
             # Set permissions for executable \
-            chmod +x dist/DjikstraApp 
+            chmod +x dist/DijkstraApp 
         options: --user root
 
 
@@ -89,35 +89,35 @@ jobs:
     - name: Build with PyInstaller for Windows
       if: matrix.os == 'windows-latest'
       run: |
-        pyinstaller --onefile --windowed --name=DjikstraApp DjikstraApp.py
+        pyinstaller --onefile --windowed --name=DijkstraApp DijkstraApp.py
 
     # Build with PyInstaller for macOS
     - name: Build with PyInstaller for macOS
       if: matrix.os == 'macos-latest'
       run: |
-        pyinstaller --onefile --windowed --name=DjikstraApp DjikstraApp.py
+        pyinstaller --onefile --windowed --name=DijkstraApp DijkstraApp.py
 
     # Build with PyInstaller for Ubuntu
     - name: Build with PyInstaller for Ubuntu
       if: matrix.os == 'ubuntu-latest'
       run: |
-        pyinstaller --onefile --windowed --name=DjikstraApp DjikstraApp.py
+        pyinstaller --onefile --windowed --name=DijkstraApp DijkstraApp.py
 
     # macOS-specific step to set executable permissions and zip the .app bundle
     - name: Set permissions and zip .app for macOS
       if: matrix.os == 'macos-latest'
       run: |
-        chmod +x dist/DjikstraApp.app/Contents/MacOS/DjikstraApp
+        chmod +x dist/DijkstraApp.app/Contents/MacOS/DijkstraApp
         cd dist
-        zip -r DjikstraApp-macOS.zip DjikstraApp.app
+        zip -r DijkstraApp-macOS.zip DijkstraApp.app
 
     # Upload artifacts for macOS (only the zip file)
     - name: Upload macOS zip
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: DjikstraApp-macos
-        path: dist/DjikstraApp-macOS.zip
+        name: DijkstraApp-macos
+        path: dist/DijkstraApp-macOS.zip
 
 
     # Upload artifacts for other platforms (Windows, Ubuntu, Red Hat)
@@ -125,5 +125,5 @@ jobs:
       if: matrix.os != 'macos-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: DjikstraApp-${{ matrix.os }}
+        name: DijkstraApp-${{ matrix.os }}
         path: dist/*
